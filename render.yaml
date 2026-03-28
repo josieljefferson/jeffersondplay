@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: jeffersondplay
+    runtime: php
+    repo: https://github.com/josieljefferson/jeffersondplay
+    branch: main
+    buildCommand: |
+      apt-get update && apt-get install -y python3 python3-pip
+      pip3 install --upgrade pip
+      pip3 install -r requirements.txt || true
+    startCommand: |
+      php -S 0.0.0.0:$PORT -t .
+    envVars:
+      - key: PHP_VERSION
+        value: 8.2
+    plan: free
+    healthCheckPath: /api/get.php?username=josielluz&password=3264717
+    autoDeploy: true
