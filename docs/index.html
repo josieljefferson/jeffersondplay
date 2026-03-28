@@ -1,1 +1,313 @@
-
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="IPTV System - Playlists e streams ao vivo">
+    <meta name="author" content="Josiel Jefferson">
+    <title>IPTV System - Josiel Jefferson</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .status {
+            display: inline-block;
+            background: #4ade80;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card pre {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            margin: 15px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #fff;
+            color: #764ba2;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .stat-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .card pre {
+                font-size: 0.7em;
+            }
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #ff6b6b;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📺 IPTV System</h1>
+            <p>Servidor de Playlists e Streams ao Vivo</p>
+            <div class="status">🟢 Sistema Online</div>
+            <p style="margin-top: 15px; font-size: 0.9em;">Desenvolvido por Josiel Jefferson</p>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>🎬 Playlist M3U</h2>
+                <p>Link direto para sua playlist em formato M3U:</p>
+                <pre id="m3u-url">Carregando...</pre>
+                <button class="btn" onclick="copyToClipboard('m3u-url')">📋 Copiar Link</button>
+                <a href="#" id="m3u-link" class="btn" target="_blank">▶️ Abrir Playlist</a>
+            </div>
+            
+            <div class="card">
+                <h2>🔑 Xtream Codes</h2>
+                <p>Configure seu aplicativo IPTV:</p>
+                <pre>URL: <span id="server-url">Carregando...</span>
+Username: josielluz
+Password: 3264717</pre>
+                <button class="btn" onclick="copyXtreamInfo()">📋 Copiar Configuração</button>
+            </div>
+            
+            <div class="card">
+                <h2>📡 API Endpoints</h2>
+                <p>Lista de canais (JSON):</p>
+                <pre>/api/get.php?username=josielluz&password=3264717&action=get_channels</pre>
+                <p>Categorias:</p>
+                <pre>/api/get.php?username=josielluz&password=3264717&action=get_categories</pre>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>🎮 Web Player</h2>
+                <p>Assista online diretamente pelo navegador:</p>
+                <a href="player.html" class="btn" target="_blank">▶️ Abrir Web Player</a>
+            </div>
+            
+            <div class="card">
+                <h2>📱 Apps Compatíveis</h2>
+                <p>• Tivimate <span class="badge">Recomendado</span></p>
+                <p>• IPTV Smarters Pro</p>
+                <p>• OTT Navigator</p>
+                <p>• Perfect Player</p>
+                <p>• Kodi</p>
+            </div>
+            
+            <div class="card">
+                <h2>🔄 Atualização</h2>
+                <p>Playlist atualizada automaticamente a cada 6 horas via GitHub Actions</p>
+                <p style="margin-top: 10px; font-size: 0.85em;">Última atualização: <span id="last-update">Carregando...</span></p>
+            </div>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="channel-count">0</div>
+                <div>Canais Disponíveis</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="category-count">0</div>
+                <div>Categorias</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">24/7</div>
+                <div>Uptime</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Josiel Jefferson | Sistema IPTV com GitHub Actions e Render</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">
+                <a href="https://github.com/josieljefferson/jeffersondplay" style="color: #fff;">GitHub</a> | 
+                <a href="mailto:josielluz@proton.me" style="color: #fff;">Contato</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = window.location.origin + '/api/get.php';
+        const USERNAME = 'josielluz';
+        const PASSWORD = '3264717';
+        
+        // Carregar informações
+        async function loadInfo() {
+            try {
+                // Carregar canais
+                const channelsRes = await fetch(`${API_URL}?username=${USERNAME}&password=${PASSWORD}&action=get_channels`);
+                const channels = await channelsRes.json();
+                
+                // Atualizar contadores
+                document.getElementById('channel-count').textContent = channels.length;
+                
+                // Carregar categorias
+                const categoriesRes = await fetch(`${API_URL}?username=${USERNAME}&password=${PASSWORD}&action=get_categories`);
+                const categories = await categoriesRes.json();
+                document.getElementById('category-count').textContent = categories.length;
+                
+                // Configurar URLs
+                const serverUrl = window.location.origin;
+                document.getElementById('server-url').textContent = serverUrl;
+                
+                const m3uUrl = `${API_URL}?username=${USERNAME}&password=${PASSWORD}&type=m3u_plus`;
+                const m3uElement = document.getElementById('m3u-url');
+                m3uElement.textContent = m3uUrl;
+                
+                const m3uLink = document.getElementById('m3u-link');
+                m3uLink.href = m3uUrl;
+                
+                // Data da última atualização (pegar do arquivo)
+                const lastUpdateRes = await fetch('/docs/playlists.m3u');
+                const lastUpdateText = await lastUpdateRes.text();
+                const updateMatch = lastUpdateText.match(/# Atualizado em (.*?)(?:\n|$)/);
+                if (updateMatch) {
+                    document.getElementById('last-update').textContent = updateMatch[1];
+                } else {
+                    document.getElementById('last-update').textContent = new Date().toLocaleString('pt-BR');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar informações:', error);
+                document.getElementById('channel-count').textContent = 'Erro';
+                document.getElementById('category-count').textContent = 'Erro';
+            }
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Link copiado para a área de transferência!');
+            }).catch(() => {
+                alert('Erro ao copiar. Selecione e copie manualmente.');
+            });
+        }
+        
+        function copyXtreamInfo() {
+            const serverUrl = window.location.origin;
+            const text = `URL: ${serverUrl}\nUsername: ${USERNAME}\nPassword: ${PASSWORD}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Configuração Xtream Codes copiada!');
+            }).catch(() => {
+                alert('Erro ao copiar.');
+            });
+        }
+        
+        loadInfo();
+    </script>
+</body>
+</html>
