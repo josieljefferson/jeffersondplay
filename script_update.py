@@ -3,7 +3,7 @@
 """
 Script de atualização automática IPTV
 Autor: Josiel Jefferson
-Versão: 2.0
+Versão: 2.1
 """
 
 import requests
@@ -11,7 +11,9 @@ import os
 import sys
 import json
 from datetime import datetime
-from m3u_processor import processar_lista
+
+# Importar o processador
+import m3u_processor
 
 # Configurações
 API_URL = "https://api.github.com/repos/josieljefferson/jeffersondplay/contents/"
@@ -28,7 +30,9 @@ IGNORAR = [
     ".gitignore", 
     "README.md",
     "render.yaml",
-    ".github"
+    ".github",
+    "docs",
+    "api"
 ]
 
 def listar_arquivos():
@@ -39,21 +43,27 @@ def listar_arquivos():
         r.raise_for_status()
         
         arquivos = []
-        for item in r.json():
-            nome = item["name"]
-            
-            # Ignorar arquivos específicos
-            if nome in IGNORAR:
-                continue
-            
-            # Aceitar listas IPTV
-            if nome.endswith((".m3u", ".m3u8", ".txt")):
-                arquivos.append({
-                    "name": nome,
-                    "url": item["download_url"],
-                    "size": item.get("size", 0)
-                })
-                print(f"  📄 Encontrado: {nome} ({item.get('size', 0)} bytes)")
+        items = r.json()
+        
+        # Se for uma lista, processar normalmente
+        if isinstance(items, list):
+            for item in items:
+                nome = item["name"]
+                
+                # Ignorar arquivos específicos
+                if nome in IGNORAR:
+                    continue
+                
+                # Aceitar listas IPTV
+                if nome.endswith((".m3u", ".m3u8", ".txt")):
+                    arquivos.append({
+                        "name": nome,
+                        "url": item["download_url"],
+                        "size": item.get("size", 0)
+                    })
+                    print(f"  📄 Encontrado: {nome} ({item.get('size', 0)} bytes)")
+        else:
+            print("  ⚠️ Resposta inesperada da API")
         
         return arquivos
     except Exception as e:
@@ -88,13 +98,14 @@ def baixar_arquivos(arquivos):
     
     return True
 
-def adicionar_timestamp(m3u_file):
+def adicionar_timestamp(m3u_file, total_canais):
     """Adiciona timestamp ao final do arquivo M3U"""
     try:
         timestamp = datetime.now().strftime('%d/%m/%Y - %H:%M:%S')
         with open(m3u_file, "a", encoding="utf-8") as f:
             f.write(f"\n\n# Atualizado em {timestamp} BRT\n")
-            f.write(f"# Total de canais: {len(open(m3u_file).readlines())}\n")
+            f.write(f"# Total de canais: {total_canais}\n")
+            f.write(f"# Fonte: GitHub Actions\n")
         return True
     except Exception as e:
         print(f"⚠️ Erro ao adicionar timestamp: {e}")
@@ -105,11 +116,12 @@ def gerar_metadata(canais, stats):
     metadata = {
         "generated_at": datetime.now().isoformat(),
         "generated_at_br": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
-        "version": "2.0",
+        "version": "2.1",
         "author": "Josiel Jefferson",
         "stats": stats,
         "total_channels": len(canais),
         "epg_sources": len(m3u_processor.EPG_URLS),
+        "epg_urls": m3u_processor.EPG_URLS,
         "server_info": {
             "name": "IPTV System",
             "url": "https://jeffersondplay.onrender.com",
@@ -117,7 +129,7 @@ def gerar_metadata(canais, stats):
         }
     }
     
-    with open(os.path.join(OUTPUT, "metadata.json"), "w") as f:
+    with open(os.path.join(OUTPUT, "metadata.json"), "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
 
 def main():
@@ -133,11 +145,16 @@ def main():
         print("❌ Falha no download dos arquivos")
         sys.exit(1)
     
+    # Verificar se há arquivos para processar
+    arquivos_baixados = [f for f in os.listdir(PASTA) if f.endswith(('.m3u', '.m3u8', '.txt'))]
+    if not arquivos_baixados:
+        print("⚠️ Nenhum arquivo de playlist encontrado para processar")
+        sys.exit(0)
+    
     # Processar playlists
     print("\n📝 Processando playlists...")
     try:
-        from m3u_processor import EPG_URLS as epg_urls
-        canais, stats = processar_lista(PASTA, OUTPUT)
+        canais, stats = m3u_processor.processar_lista(PASTA, OUTPUT)
         
         print(f"\n📊 Estatísticas:")
         print(f"  • Arquivos processados: {stats['arquivos_processados']}")
@@ -146,7 +163,7 @@ def main():
         
         # Adicionar timestamp
         m3u_file = os.path.join(OUTPUT, "playlists.m3u")
-        adicionar_timestamp(m3u_file)
+        adicionar_timestamp(m3u_file, stats['canais_unicos'])
         
         # Gerar metadados
         gerar_metadata(canais, stats)
@@ -154,9 +171,12 @@ def main():
         print(f"\n✅ Atualização concluída com sucesso!")
         print(f"📁 Playlist salva em: {m3u_file}")
         print(f"📊 JSON salvo em: {OUTPUT}/channels.json")
+        print(f"📈 Estatísticas em: {OUTPUT}/stats.json")
         
     except Exception as e:
         print(f"❌ Erro no processamento: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
     
     # Limpar arquivos temporários
@@ -165,9 +185,11 @@ def main():
         caminho = os.path.join(PASTA, arquivo)
         if os.path.isfile(caminho):
             os.remove(caminho)
+            print(f"  🗑️ Removido: {arquivo}")
     
     print("✅ Limpeza concluída")
     print("=" * 50)
+    print("🎉 Sistema atualizado com sucesso!")
 
 if __name__ == "__main__":
     main()

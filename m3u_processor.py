@@ -3,7 +3,7 @@
 """
 Processador de listas M3U para IPTV System
 Autor: Josiel Jefferson
-Versão: 2.0
+Versão: 2.1
 """
 
 import os
@@ -55,7 +55,8 @@ def processar_lista(pasta_entrada, pasta_saida):
         "arquivos_processados": 0,
         "canais_encontrados": 0,
         "canais_unicos": 0,
-        "erros": 0
+        "erros": 0,
+        "arquivos": []
     }
     
     # Verificar se pasta existe
@@ -70,6 +71,9 @@ def processar_lista(pasta_entrada, pasta_saida):
             
         caminho = os.path.join(pasta_entrada, arquivo)
         stats["arquivos_processados"] += 1
+        canais_arquivo = 0
+        
+        print(f"  📄 Processando: {arquivo}")
         
         try:
             with open(caminho, "r", encoding="utf-8", errors="ignore") as f:
@@ -92,7 +96,7 @@ def processar_lista(pasta_entrada, pasta_saida):
                             "group": limpar_texto(attrs["group"]) or "OUTROS"
                         }
                         
-                    elif linha.startswith("http"):
+                    elif linha.startswith("http") or linha.startswith("https"):
                         if linha not in urls_vistas:
                             urls_vistas.add(linha)
                             
@@ -107,14 +111,22 @@ def processar_lista(pasta_entrada, pasta_saida):
                             canal["url"] = linha
                             canal["stream_id"] = len(canais) + 1
                             canal["added"] = datetime.now().isoformat()
+                            canal["source_file"] = arquivo
                             
                             canais.append(canal)
                             stats["canais_unicos"] += 1
+                            canais_arquivo += 1
                             
                         dados_extinf = None
                         
+            stats["arquivos"].append({
+                "nome": arquivo,
+                "canais": canais_arquivo
+            })
+            print(f"    ✅ {canais_arquivo} canais encontrados")
+                        
         except Exception as e:
-            print(f"❌ Erro ao processar {arquivo}: {e}")
+            print(f"    ❌ Erro ao processar {arquivo}: {e}")
             stats["erros"] += 1
     
     stats["canais_encontrados"] = len(canais)
@@ -141,11 +153,18 @@ def processar_lista(pasta_entrada, pasta_saida):
         f.write(header)
         
         for c in canais:
+            # Escapar caracteres especiais nos atributos
+            tvg_id = c["tvg_id"].replace('"', '\\"')
+            tvg_name = c["tvg_name"].replace('"', '\\"')
+            tvg_logo = c["tvg_logo"].replace('"', '\\"')
+            group = c["group"].replace('"', '\\"')
+            nome = c["nome"].replace('"', '\\"')
+            
             f.write(
-                f'#EXTINF:-1 tvg-id="{c["tvg_id"]}" '
-                f'tvg-name="{c["tvg_name"]}" '
-                f'tvg-logo="{c["tvg_logo"]}" '
-                f'group-title="{c["group"]}",{c["nome"]}\n'
+                f'#EXTINF:-1 tvg-id="{tvg_id}" '
+                f'tvg-name="{tvg_name}" '
+                f'tvg-logo="{tvg_logo}" '
+                f'group-title="{group}",{nome}\n'
             )
             f.write(c["url"] + "\n\n")
     
@@ -159,6 +178,6 @@ def processar_lista(pasta_entrada, pasta_saida):
     with open(caminho_stats, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2)
     
-    print(f"✅ Processados {stats['canais_unicos']} canais únicos de {stats['arquivos_processados']} arquivos")
+    print(f"\n✅ Total: {stats['canais_unicos']} canais únicos de {stats['arquivos_processados']} arquivos")
     
     return canais, stats
