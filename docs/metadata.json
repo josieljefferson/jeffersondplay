@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-03-28T23:57:09.612092",
+  "generated_at_br": "28/03/2026 23:57:09",
+  "version": "2.1",
+  "author": "Josiel Jefferson",
+  "stats": {
+    "arquivos_processados": 2,
+    "canais_encontrados": 16650,
+    "canais_unicos": 16650,
+    "erros": 0,
+    "arquivos": [
+      {
+        "nome": "playlists-oficial.m3u",
+        "canais": 16650
+      },
+      {
+        "nome": "playlists-official.m3u",
+        "canais": 0
+      }
+    ]
+  },
+  "total_channels": 16650,
+  "epg_sources": 11,
+  "epg_urls": [
+    "https://m3u4u.com/epg/jq2zy9epr3bwxmgwyxr5",
+    "https://m3u4u.com/epg/3wk1y24kx7uzdevxygz7",
+    "https://m3u4u.com/epg/782dyqdrqkh1xegen4zp",
+    "https://www.open-epg.com/files/brazil1.xml.gz",
+    "https://www.open-epg.com/files/brazil2.xml.gz",
+    "https://www.open-epg.com/files/brazil3.xml.gz",
+    "https://www.open-epg.com/files/brazil4.xml.gz",
+    "https://www.open-epg.com/files/portugal1.xml.gz",
+    "https://www.open-epg.com/files/portugal2.xml.gz",
+    "https://epgshare01.online/epgshare01/epg_ripper_BR1.xml.gz",
+    "https://epgshare01.online/epgshare01/epg_ripper_PT1.xml.gz"
+  ],
+  "server_info": {
+    "name": "IPTV System",
+    "url": "https://jeffersondplay.onrender.com",
+    "username": "josielluz"
+  }
+}

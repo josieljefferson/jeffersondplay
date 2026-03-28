@@ -1,0 +1,16 @@
+{
+  "arquivos_processados": 2,
+  "canais_encontrados": 16650,
+  "canais_unicos": 16650,
+  "erros": 0,
+  "arquivos": [
+    {
+      "nome": "playlists-oficial.m3u",
+      "canais": 16650
+    },
+    {
+      "nome": "playlists-official.m3u",
+      "canais": 0
+    }
+  ]
+}
