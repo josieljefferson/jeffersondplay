@@ -13,6 +13,7 @@ on:
     paths:
       - 'downloads/**'
       - '*.py'
+      - 'requirements.txt'
 
 permissions:
   contents: write
@@ -36,24 +37,38 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip install requests
+      
+      - name: 🔍 Verificar arquivos
+        run: |
+          echo "📁 Arquivos no diretório:"
+          ls -la
+          echo ""
+          echo "📁 Criando diretórios necessários:"
+          mkdir -p downloads docs
       
       - name: 🚀 Executar script de atualização
         run: python script_update.py
         env:
           PYTHONUNBUFFERED: 1
+          PYTHONIOENCODING: utf-8
       
-      - name: 📝 Adicionar data no playlists.m3u
+      - name: 📊 Verificar resultado
         run: |
-          FILE="docs/playlists.m3u"
-          if [ -f "$FILE" ]; then
-            echo -e "\n\n# 🔄 Última atualização via GitHub Actions" >> "$FILE"
-            echo "# 📅 $(TZ='America/Fortaleza' date '+%d/%m/%Y - %H:%M:%S') BRT" >> "$FILE"
+          echo "📊 Estatísticas após execução:"
+          if [ -f "docs/stats.json" ]; then
+            cat docs/stats.json
+          else
+            echo "⚠️ Arquivo stats.json não encontrado"
           fi
+          echo ""
+          echo "📁 Arquivos gerados:"
+          ls -la docs/
       
       - name: 💾 Commit automático
         run: |
           git config --global user.name "IPTV Bot"
           git config --global user.email "bot@jeffersondplay.com"
-          git add .
-          git commit -m "🔄 update: $(TZ='America/Fortaleza' date '+%Y-%m-%d %H:%M:%S')" || echo "✅ Sem mudanças para commit"
+          git add docs/ downloads/
+          git commit -m "🔄 Auto-update: $(TZ='America/Fortaleza' date '+%Y-%m-%d %H:%M:%S')" || echo "✅ Sem mudanças para commit"
           git push
