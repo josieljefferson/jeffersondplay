@@ -17,7 +17,7 @@ from datetime import datetime
 import m3u_processor
 
 # Configurações
-API_URL = "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/"
+API_URL = "https://api.github.com/repos/jeffersondplay/contents/"
 PASTA = "downloads"
 OUTPUT = "docs"
 
@@ -44,9 +44,9 @@ def listar_arquivos():
         
         # Tentar diferentes URLs possíveis
         urls_teste = [
-            "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/",
-            "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/downloads",
-            "https://raw.githubusercontent.com/jeffersondplay/jeffersondplay/main/"
+            "https://api.github.com/repos/jeffersondplay/contents/",
+            "https://api.github.com/repos/jeffersondplay/contents/downloads",
+            "https://raw.githubusercontent.com/jeffersondplay/main/"
         ]
         
         arquivos = []
@@ -137,7 +137,7 @@ def gerar_metadata(canais, stats):
         "generated_at_br": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
         "version": "2.2",
         "author": "Jefferson Dplay",
-        "repo": "jeffersondplay/jeffersondplay",
+        "repo": "jeffersondplay",
         "stats": stats,
         "total_channels": len(canais),
         "epg_sources": len(m3u_processor.EPG_URLS),
@@ -171,7 +171,7 @@ def main():
     print("=" * 50)
     print("🚀 IPTV System - Atualização Automática")
     print(f"📅 Data: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-    print(f"👤 Repositório: jeffersondplay/jeffersondplay")
+    print(f"👤 Repositório: jeffersondplay")
     print("=" * 50)
     
     # Listar e baixar arquivos
