@@ -46,6 +46,9 @@ jobs:
           echo ""
           echo "📁 Criando diretórios necessários:"
           mkdir -p downloads docs
+          
+          # Criar arquivo .gitkeep para manter a pasta
+          touch downloads/.gitkeep
       
       - name: 🚀 Executar script de atualização
         run: python script_update.py
@@ -62,13 +65,23 @@ jobs:
             echo "⚠️ Arquivo stats.json não encontrado"
           fi
           echo ""
-          echo "📁 Arquivos gerados:"
+          echo "📁 Arquivos gerados em docs/:"
           ls -la docs/
       
       - name: 💾 Commit automático
         run: |
           git config --global user.name "IPTV Bot"
           git config --global user.email "bot@jeffersondplay.com"
-          git add docs/ downloads/
-          git commit -m "🔄 Auto-update: $(TZ='America/Fortaleza' date '+%Y-%m-%d %H:%M:%S')" || echo "✅ Sem mudanças para commit"
-          git push
+          
+          # Adicionar apenas os arquivos importantes da pasta docs
+          git add docs/playlists.m3u docs/channels.json docs/stats.json docs/metadata.json
+          git add docs/index.html docs/player.html
+          
+          # Verificar se há mudanças
+          if git diff --cached --quiet; then
+            echo "✅ Sem mudanças para commit"
+          else
+            git commit -m "🔄 Auto-update: $(TZ='America/Fortaleza' date '+%Y-%m-%d %H:%M:%S')"
+            git push
+            echo "✅ Commit e push realizados com sucesso"
+          fi
