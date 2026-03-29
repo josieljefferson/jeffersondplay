@@ -46,7 +46,7 @@ def listar_arquivos():
         urls_teste = [
             "https://api.github.com/repos/jeffersondplay/contents/",
             "https://api.github.com/repos/jeffersondplay/contents/downloads",
-            "https://raw.githubusercontent.com/jeffersondplay/main/"
+            "https://raw.githubusercontent.com/josieljefferson/jeffersondplay/refs/heads/main/docs/playlists.m3u"
         ]
         
         arquivos = []
