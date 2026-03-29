@@ -3,20 +3,21 @@
 """
 Script de atualização automática IPTV
 Autor: Josiel Jefferson
-Versão: 2.1
+Versão: 2.2
 """
 
 import requests
 import os
 import sys
 import json
+import shutil
 from datetime import datetime
 
 # Importar o processador
 import m3u_processor
 
 # Configurações
-API_URL = "https://api.github.com/repos/josieljefferson/jeffersondplay/contents/"
+API_URL = "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/"
 PASTA = "downloads"
 OUTPUT = "docs"
 
@@ -32,17 +33,35 @@ IGNORAR = [
     "render.yaml",
     ".github",
     "docs",
-    "api"
+    "api",
+    ".gitkeep"
 ]
 
 def listar_arquivos():
     """Lista arquivos disponíveis no repositório"""
     try:
         print("📡 Buscando arquivos no GitHub...")
-        r = requests.get(API_URL, timeout=30)
-        r.raise_for_status()
+        
+        # Tentar diferentes URLs possíveis
+        urls_teste = [
+            "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/",
+            "https://api.github.com/repos/jeffersondplay/jeffersondplay/contents/downloads",
+            "https://raw.githubusercontent.com/jeffersondplay/jeffersondplay/main/"
+        ]
         
         arquivos = []
+        
+        for url_teste in urls_teste:
+            try:
+                r = requests.get(url_teste, timeout=30)
+                if r.status_code == 200:
+                    print(f"  ✅ Conectado a: {url_teste}")
+                    break
+            except:
+                continue
+        
+        r.raise_for_status()
+        
         items = r.json()
         
         # Se for uma lista, processar normalmente
@@ -105,7 +124,7 @@ def adicionar_timestamp(m3u_file, total_canais):
         with open(m3u_file, "a", encoding="utf-8") as f:
             f.write(f"\n\n# Atualizado em {timestamp} BRT\n")
             f.write(f"# Total de canais: {total_canais}\n")
-            f.write(f"# Fonte: GitHub Actions\n")
+            f.write(f"# Fonte: GitHub Actions - jeffersondplay\n")
         return True
     except Exception as e:
         print(f"⚠️ Erro ao adicionar timestamp: {e}")
@@ -116,8 +135,9 @@ def gerar_metadata(canais, stats):
     metadata = {
         "generated_at": datetime.now().isoformat(),
         "generated_at_br": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
-        "version": "2.1",
-        "author": "Josiel Jefferson",
+        "version": "2.2",
+        "author": "Jefferson Dplay",
+        "repo": "jeffersondplay/jeffersondplay",
         "stats": stats,
         "total_channels": len(canais),
         "epg_sources": len(m3u_processor.EPG_URLS),
@@ -132,11 +152,26 @@ def gerar_metadata(canais, stats):
     with open(os.path.join(OUTPUT, "metadata.json"), "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
 
+def limpar_pasta_downloads():
+    """Limpa apenas os arquivos baixados, mantendo a estrutura"""
+    try:
+        for arquivo in os.listdir(PASTA):
+            caminho = os.path.join(PASTA, arquivo)
+            # Não remover o .gitkeep
+            if arquivo != ".gitkeep" and os.path.isfile(caminho):
+                os.remove(caminho)
+                print(f"  🗑️ Removido: {arquivo}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Erro ao limpar pasta: {e}")
+        return False
+
 def main():
     """Função principal"""
     print("=" * 50)
     print("🚀 IPTV System - Atualização Automática")
     print(f"📅 Data: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f"👤 Repositório: jeffersondplay/jeffersondplay")
     print("=" * 50)
     
     # Listar e baixar arquivos
@@ -161,6 +196,12 @@ def main():
         print(f"  • Canais únicos: {stats['canais_unicos']}")
         print(f"  • Erros: {stats['erros']}")
         
+        # Mostrar detalhes por arquivo
+        if "arquivos" in stats:
+            print(f"\n  📁 Detalhes por arquivo:")
+            for arquivo in stats["arquivos"]:
+                print(f"    • {arquivo['nome']}: {arquivo['canais']} canais")
+        
         # Adicionar timestamp
         m3u_file = os.path.join(OUTPUT, "playlists.m3u")
         adicionar_timestamp(m3u_file, stats['canais_unicos'])
@@ -181,11 +222,7 @@ def main():
     
     # Limpar arquivos temporários
     print("\n🧹 Limpando arquivos temporários...")
-    for arquivo in os.listdir(PASTA):
-        caminho = os.path.join(PASTA, arquivo)
-        if os.path.isfile(caminho):
-            os.remove(caminho)
-            print(f"  🗑️ Removido: {arquivo}")
+    limpar_pasta_downloads()
     
     print("✅ Limpeza concluída")
     print("=" * 50)

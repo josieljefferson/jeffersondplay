@@ -7,7 +7,6 @@ __pycache__/
 env/
 venv/
 ENV/
-downloads/
 *.log
 
 # IDE
@@ -28,3 +27,17 @@ temp/
 # Local
 .env
 .local/
+
+# Downloads (apenas a pasta, não os arquivos dentro dela)
+downloads/*.m3u
+downloads/*.m3u8
+downloads/*.txt
+!downloads/.gitkeep
+
+# Docs - não ignorar
+!docs/playlists.m3u
+!docs/channels.json
+!docs/stats.json
+!docs/metadata.json
+!docs/index.html
+!docs/player.html
