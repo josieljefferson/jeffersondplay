@@ -1,12 +1,12 @@
 {
   "arquivos_processados": 1,
-  "canais_encontrados": 1,
-  "canais_unicos": 1,
+  "canais_encontrados": 7448,
+  "canais_unicos": 7448,
   "erros": 0,
   "arquivos": [
     {
       "nome": "exemplo.m3u",
-      "canais": 1
+      "canais": 7448
     }
   ]
 }

@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-23T07:52:40.467686",
-  "total_channels": 1,
+  "generated_at": "2026-04-23T08:01:41.223457",
+  "total_channels": 7448,
   "stats": {
     "arquivos_processados": 1,
-    "canais_encontrados": 1,
-    "canais_unicos": 1,
+    "canais_encontrados": 7448,
+    "canais_unicos": 7448,
     "erros": 0,
     "arquivos": [
       {
         "nome": "exemplo.m3u",
-        "canais": 1
+        "canais": 7448
       }
     ]
   }
